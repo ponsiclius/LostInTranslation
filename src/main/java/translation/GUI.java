@@ -14,47 +14,88 @@ public class GUI {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JPanel countryPanel = new JPanel();
-            JTextField countryField = new JTextField(10);
-            countryField.setText("can");
-            countryField.setEditable(false); // we only support the "can" country code for now
+
+            Translator translator = new JSONTranslator("sample.json");
+
             countryPanel.add(new JLabel("Country:"));
-            countryPanel.add(countryField);
+            final JComboBox<String> countryComboBox = new JComboBox<>();
+
+            for(String countryCode : translator.getCountryCodes()) {
+                countryComboBox.addItem(countryCode);
+            }
+            countryPanel.add(countryComboBox);
+
 
             JPanel languagePanel = new JPanel();
-            JTextField languageField = new JTextField(10);
             languagePanel.add(new JLabel("Language:"));
-            languagePanel.add(languageField);
+            final JComboBox<String> languageComboBox = new JComboBox<>();
+
+            for(String languageCode : translator.getLanguageCodes()) {
+                languageComboBox.addItem(languageCode);
+            }
+
+
+
+            languagePanel.add(languageComboBox);
 
             JPanel buttonPanel = new JPanel();
-            JButton submit = new JButton("Submit");
-            buttonPanel.add(submit);
 
             JLabel resultLabelText = new JLabel("Translation:");
             buttonPanel.add(resultLabelText);
-            JLabel resultLabel = new JLabel("\t\t\t\t\t\t\t");
+            JLabel resultLabel = new JLabel("");
             buttonPanel.add(resultLabel);
+
+            // TODO: automatically change the output based on what dropdown is selected
+            // fetch the current language / country codes
+            // input this into translation function in JSONTranslator
+            // change the output of the resultLabel
+
+            countryComboBox.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        String language = languageComboBox.getSelectedItem().toString();
+                        String country = countryComboBox.getSelectedItem().toString();
+                        String output = translator.translate(language, country);
+                        resultLabel.setText((output));
+                    }
+                }
+            });
+
+            languageComboBox.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    if (e.getStateChange() == ItemEvent.SELECTED) {
+                        String language = languageComboBox.getSelectedItem().toString();
+                        String country = countryComboBox.getSelectedItem().toString();
+                        String output = translator.translate(language, country);
+                        resultLabel.setText((output));
+//                      JOptionPane.showMessageDialog(null, "user selected " + country + "!");
+                    }
+                }
+            });
+
 
 
             // adding listener for when the user clicks the submit button
-            submit.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String language = languageField.getText();
-                    String country = countryField.getText();
-
-                    // for now, just using our simple translator, but
-                    // we'll need to use the real JSON version later.
-                    Translator translator = new CanadaTranslator();
-
-                    String result = translator.translate(country, language);
-                    if (result == null) {
-                        result = "no translation found!";
-                    }
-                    resultLabel.setText(result);
-
-                }
-
-            });
+//            submit.addActionListener(new ActionListener() {
+//                @Override
+//                public void actionPerformed(ActionEvent e) {
+//                    String language = languageField.getText();
+//                    String country = countryField.getText();
+//
+//                    // for now, just using our simple translator, but
+//                    // we'll need to use the real JSON version later.
+//
+//                    String result = translator.translate(country, language);
+//                    if (result == null) {
+//                        result = "no translation found!";
+//                    }
+//                    resultLabel.setText(result);
+//
+//                }
+//
+//            });
 
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
